@@ -2,6 +2,7 @@
 import os
 import hashlib
 import magic
+import tqdm
 
 extensions={
     "message_rfc822":"eml",
@@ -30,5 +31,5 @@ def get_magic(filename):
 
 BLOCKSIZE=65536
 files = [f for f in os.listdir('.') if os.path.isfile(f)]
-for f in files:
+for f in tqdm.tqdm(files):
     os.rename(f,get_md5(f)+"."+get_magic(f))
