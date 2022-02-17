@@ -3,15 +3,7 @@ import os
 import hashlib
 import magic
 import tqdm
-
-extensions={
-    "message_rfc822":"eml",
-    "application_x-7z-compressed":"7z",
-    "text_html":"html",
-    "image_jpeg":"jpg",
-    "text_plain":"txt",
-    "application_pdf":"pdf"
-    }
+import mimetypes
 
 def get_md5(filename):
     md5=hashlib.md5()
@@ -22,14 +14,16 @@ def get_md5(filename):
             fb=fd.read(BLOCKSIZE)
     return md5.hexdigest()
 
-def get_magic(filename):
-    magic_string=magic.from_file(filename, mime=True)
-    magic_string=magic_string.replace("/","_")
-    if magic_string in extensions:
-        magic_string=extensions[magic_string]
+def get_extension(filename):
+    magic_string = magic.from_file(filename, mime=True)
+    extension = mimetypes.guess_extension(magic_string,strict=False)
+    magic_string="." + magic_string.replace("/","_")
+    if extension:
+        return extension
+
     return magic_string
 
 BLOCKSIZE=65536
 files = [f for f in os.listdir('.') if os.path.isfile(f)]
 for f in tqdm.tqdm(files):
-    os.rename(f,get_md5(f)+"."+get_magic(f))
+    os.rename(f,get_md5(f)+get_extension(f))
